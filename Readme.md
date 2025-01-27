@@ -1,43 +1,67 @@
 
 # Peer-to-peer Messaging and Broadcast Application
 
-This is a C language based application that allows users to communicate with each other through peer-to-peer messaging and broadcasting. The application uses a TCP socket for peer-to-peer communication and a UDP socket for broadcasting messages.
+This project demonstrates a multithreaded TCP server-client architecture with MySQL database integration and secure user authentication. It includes functionalities for user login, signup, and broadcast communication, with passwords securely hashed using SHA256.
 
-Features
-- Users can sign up and log in using a username and password.
-- The username and password are stored in a MySQL database with the password being hashed for security.
-- After logging in, users are prompted with two options: display all active users or broadcast messages.
-- Users can select their desired option and communicate through peer-to-peer messaging or broadcasting.
+---
 
-Required Packages
-gcc - 9.4.0
-mysql - 8.0.32
-mysqlclient-dev
-openssl library
+## Features
 
+- **Multithreaded TCP Server**: Handles multiple clients concurrently using POSIX threads.
+- **User Authentication**:
+  - **Signup**: Allows users to create accounts with a username and password.
+  - **Login**: Authenticates users by securely comparing SHA256-hashed passwords stored in the database.
+- **MySQL Integration**: 
+  - Stores user credentials securely in a database.
+  - Dynamically creates the `users` table if it doesn't exist.
+- **Broadcast Communication**: Server broadcasts a message periodically to all clients.
+- **Secure Communication**: Passwords are hashed using OpenSSL's SHA256 before storing them in the database.
 
-Steps to Execute the Project:
+---
 
-- Start the server in port 4400 by running the following command in a terminal:
+## Project Structure
 
-gcc -lpthread -lssl -lcrypto -l:libssl.so.1.1 -l:libcrypto.so.1.1 -o TCPEchoServer TCPEchoServer-Thread.c DieWithError.c HandleTCPClient.c AcceptTCPConnection.c CreateTCPServerSocket.c $(mysql_config --libs --cflags)
+- `TCPEchoServer.h`  
+  Header file containing constants, function declarations, and buffer sizes.
 
-Then run this command in the same terminal:
+- `CreateTCPServerSocket.c`  
+  Contains logic for creating and binding a TCP server socket.
 
-./TCPEchoServer 4400
+- `AcceptTCPConnection.c`  
+  Handles incoming client connections.
 
-- Start the client by running the following command in a new terminal:
+- `HandleTCPClient.c`  
+  Handles client-server interaction, including login, signup, and broadcasting.
 
-gcc -pthread -lssl -o TCPEchoClient TCPEchoClient.c DieWithError.c TCPClientThread.c
+- `TCPEchoClient.c`  
+  Client-side implementation for connecting to the server and interacting with it.
 
-- Then run this command in the same terminal to connect to the server:
+- `TCPEchoServer-Thread.c`  
+  Main server file implementing a multithreaded architecture to handle multiple clients.
 
-./TCPEchoClient 127.0.0.1 "Hello" 4400
+---
 
-In this command, "127.0.0.1" represents the server's localhost, "Hello" is a string to notify the server that a client is connecting, and "4400" is the port number on which the server is running.
+## Prerequisites
 
-Screenshorts :
+1. **Libraries**:  
+   Ensure the following libraries are installed on your system:
+   - OpenSSL (for SHA256 hashing)
+   - MySQL development libraries (for database integration)
+   - pthread (for multithreading)
 
-![Broadcast ,message](https://user-images.githubusercontent.com/55336660/236057128-f349193a-7d9b-47ef-b0c5-c9ebb28fd77e.png)
-![Signup snip](https://user-images.githubusercontent.com/55336660/236057294-e1ee8775-3285-45b5-ab26-0a8713b3c5a8.png)
+2. **Database Setup**:
+   - Create a MySQL database named `mydb` (or update `DB_NAME` in the code).
+   - Use the following credentials or update them in the code:
+     - **Host**: `localhost`
+     - **User**: `debian-sys-maint`
+     - **Password**: `y5AyLlBo4PUnqOTJ`
 
+---
+
+## Setup and Usage
+
+### Server
+
+1. **Compile the server code**:
+   ```bash
+   gcc -o server CreateTCPServerSocket.c AcceptTCPConnection.c HandleTCPClient.c TCPEchoServer-Thread.c -lmysqlclient -lssl -lpthread
